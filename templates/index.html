@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Callable Execution</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .stage {
+            display: inline-block;
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        .completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+        button {
+            display: block;
+            margin: 20px 0;
+        }
+        .log {
+            border: 1px solid black;
+            padding: 10px;
+            height: 50px;
+            margin: 10px 0;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+    <div class="stages">
+        <div class="stage" id="InjectMessage">InjectMessage</div>
+        <div class="stage" id="ProcessMessage">ProcessMessage</div>
+        <div class="stage" id="StampMessagesToDB">StampMessagesToDB</div>
+        <div class="stage" id="ValidateDB">ValidateDB</div>
+    </div>
+    <button onclick="executeCallables()">Execute Callables</button>
+    <div class="log" id="InjectMessageLog"></div>
+    <div class="log" id="ProcessMessageLog"></div>
+    <div class="log" id="StampMessagesToDBLog"></div>
+    <div class="log" id="ValidateDBLog"></div>
+
+    <script>
+        async function executeCallables() {
+            const callables = ["InjectMessage", "ProcessMessage", "StampMessagesToDB", "ValidateDB"];
+            for (let callable of callables) {
+                await fetch(`/execute/${callable}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById(callable).classList.add('completed');
+                        document.getElementById(callable + 'Log').innerText = data.log;
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
