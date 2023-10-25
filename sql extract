@@ -1,0 +1,34 @@
+import re
+
+def parse_sql(sql):
+    # Extract columns in SELECT clause
+    select_pattern = r'SELECT\s+(.*?)\s+FROM'
+    select_match = re.search(select_pattern, sql, re.IGNORECASE)
+    selected_columns = select_match.group(1).split(',') if select_match else []
+
+    # Extract conditions in WHERE clause
+    where_pattern = r'WHERE\s+(.*?)(?:ORDER BY|GROUP BY|LIMIT|$)'
+    where_match = re.search(where_pattern, sql, re.IGNORECASE)
+    
+    conditions = []
+    if where_match:
+        condition_strs = re.split(r'AND|OR', where_match.group(1), flags=re.IGNORECASE)
+        for cond in condition_strs:
+            column_val_pair = re.search(r'(\w+)\s*=\s*(\'.*?\'|\d+)', cond)
+            if column_val_pair:
+                column = column_val_pair.group(1)
+                value = column_val_pair.group(2).replace("'", "")
+                # check if the value is an integer
+                if value.isdigit():
+                    value = int(value)
+                conditions.append({column: value})
+
+    return {
+        'selected_columns': [col.strip() for col in selected_columns],
+        'conditions': conditions
+    }
+
+# Test
+sql_statement = "SELECT first_name, last_name, age FROM employees WHERE id=24 AND department='Sales' OR location='NY' ORDER BY first_name"
+result = parse_sql(sql_statement)
+print(result)
