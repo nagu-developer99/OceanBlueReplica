@@ -29,3 +29,30 @@ del %Script%
 
 echo Your program has been installed and will run at startup.
 pause
+
+
+' Define the paths for source files and target locations
+SourceFolder = "C:\Path\To\Your\Source\Files"
+ExeName = "YourExeName.exe"
+ConfName = "YourConfig.conf"
+AppDataPath = CreateObject("WScript.Shell").ExpandEnvironmentStrings("%APPDATA%")
+
+' Copy files to the AppData folder
+Set fso = CreateObject("Scripting.FileSystemObject")
+fso.CopyFile SourceFolder & "\" & ExeName, AppDataPath & "\", True
+fso.CopyFile SourceFolder & "\" & ConfName, AppDataPath & "\", True
+
+' Create a shortcut in the Startup folder
+StartupFolder = AppDataPath & "\Microsoft\Windows\Start Menu\Programs\Startup"
+Set oShell = CreateObject("WScript.Shell")
+Set oShortCut = oShell.CreateShortcut(StartupFolder & "\" & ExeName & ".lnk")
+
+oShortCut.TargetPath = AppDataPath & "\" & ExeName
+oShortCut.Arguments = "-conf " & AppDataPath & "\" & ConfName
+oShortCut.Save
+
+' Optionally start the executable
+oShell.Run """" & AppDataPath & "\" & ExeName & """ -conf " & """" & AppDataPath & "\" & ConfName & """", 1, False
+
+' Inform the user
+MsgBox "Your program has been installed and will now run at startup and is also starting now.", vbInformation
