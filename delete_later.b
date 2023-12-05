@@ -56,3 +56,43 @@ oShell.Run """" & AppDataPath & "\" & ExeName & """ -conf " & """" & AppDataPath
 
 ' Inform the user
 MsgBox "Your program has been installed and will now run at startup and is also starting now.", vbInformation
+
+
+##############################
+
+import subprocess
+
+# List of commands to execute
+commands = [
+    'command1',
+    'command2',
+    'command3',
+    # Add more commands as needed
+]
+
+# List to hold the output of each command
+outputs = []
+
+# Start a shell process
+proc = subprocess.Popen('cmd.exe', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+# Execute each command in the same shell
+for cmd in commands:
+    # Send the command to the shell
+    proc.stdin.write(cmd + '\n')
+    proc.stdin.flush()
+
+    # Read the command output
+    output = proc.stdout.readline()
+    while output:
+        outputs.append(output.strip())
+        output = proc.stdout.readline()
+
+# Close the shell
+proc.stdin.close()
+proc.terminate()
+
+# Print the outputs
+for output in outputs:
+    print(output)
+
