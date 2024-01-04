@@ -96,3 +96,43 @@ proc.terminate()
 for output in outputs:
     print(output)
 
+    ###########################################
+
+
+import os
+import filecmp
+
+def list_files(directory):
+    """ Recursively list all files and subdirectories in a directory. """
+    paths = []
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            paths.append(os.path.relpath(os.path.join(root, filename), directory))
+    return set(paths)
+
+def compare_directories(dir1, dir2):
+    files_dir1 = list_files(dir1)
+    files_dir2 = list_files(dir2)
+
+    # Compare file lists
+    missing_in_dir2 = files_dir1 - files_dir2
+    missing_in_dir1 = files_dir2 - files_dir1
+
+    if missing_in_dir2:
+        print(f"Files missing in {dir2}: {missing_in_dir2}")
+    if missing_in_dir1:
+        print(f"Files missing in {dir1}: {missing_in_dir1}")
+
+    # Compare the content of files that exist in both folders
+    for file in files_dir1.intersection(files_dir2):
+        filepath1 = os.path.join(dir1, file)
+        filepath2 = os.path.join(dir2, file)
+
+        if filecmp.cmp(filepath1, filepath2, shallow=False):
+            print(f"File '{file}' is identical in both folders.")
+        else:
+            print(f"File '{file}' differs.")
+
+# Example usage
+compare_directories('path/to/directory1', 'path/to/directory2')
+
