@@ -142,3 +142,4 @@ def compare_directories(dir1, dir2):
 # Example usage
 compare_directories('path/to/directory1', 'path/to/directory2')
 
+curl -X POST http://FlaskApp2/endpoint -H "Content-Type: application/json" -d "{\"env\":\"${env}\", \"cases\":\"${cases}\"}"
