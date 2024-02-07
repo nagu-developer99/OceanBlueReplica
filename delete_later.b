@@ -145,4 +145,29 @@ compare_directories('path/to/directory1', 'path/to/directory2')
 curl -X POST http://FlaskApp2/endpoint -H "Content-Type: application/json" -d "{\"env\":\"${env}\", \"cases\":\"${cases}\"}"
 
 
+
+
+import re
+import os
+
+def convert_prints_to_logging(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+
+    # This basic pattern assumes simple print statements. It may need to be more sophisticated to handle all cases.
+    pattern = re.compile(r'print\s*\((.*)\)')
+    modified_content = pattern.sub(r'logger.info(f"{\1}")', content)
+
+    with open(file_path, 'w', encoding='utf-8') as file:
+        file.write(modified_content)
+
+# Example usage
+directory_path = '/path/to/your/project'
+for root, dirs, files in os.walk(directory_path):
+    for file in files:
+        if file.endswith('.py'):
+            convert_prints_to_logging(os.path.join(root, file))
+
+
+
 curl -X POST http://FlaskApp2/endpoint -H 'Content-Type: application/json' -d '{"env": "'"${env}"'", "cases": "'"${cases}"'"}'
