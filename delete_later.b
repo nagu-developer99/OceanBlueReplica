@@ -171,3 +171,34 @@ for root, dirs, files in os.walk(directory_path):
 
 
 curl -X POST http://FlaskApp2/endpoint -H 'Content-Type: application/json' -d '{"env": "'"${env}"'", "cases": "'"${cases}"'"}'
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+import subprocess
+
+# Replace these lists with your actual lists
+list1 = ['item1_list1', 'item2_list1', 'item3_list1']  # and so on
+list2 = ['item1_list2', 'item2_list2', 'item3_list2']  # and so on
+
+# Ensure the length of both lists is equal or adjust according to your logic
+assert len(list1) == len(list2), "Lists must be of equal length"
+
+# File to hold the combined output
+combined_output_file = 'combined_output.txt'
+
+with open(combined_output_file, 'w') as combined_file:
+    for i in range(len(list1)):
+        # Construct the command based on items from the lists
+        command = f'custom_command {list1[i]} {list2[i]}'
+        # Run the command
+        process = subprocess.run(command, shell=True, text=True, capture_output=True)
+        # Output to console
+        print(process.stdout)
+        # Output to a file specific to this command
+        with open(f'output_{i}.txt', 'w') as output_file:
+            output_file.write(process.stdout)
+        # Append this output to the combined file
+        combined_file.write(f'Command {i}: {command}\n')
+        combined_file.write(process.stdout + '\n')
+
+print("All commands have been executed and their outputs saved.")
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
