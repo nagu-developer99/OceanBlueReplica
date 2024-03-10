@@ -200,5 +200,25 @@ with open(combined_output_file, 'w') as combined_file:
         combined_file.write(f'Command {i}: {command}\n')
         combined_file.write(process.stdout + '\n')
 
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> PROGRAM that GIVES A DICT of time zones and respective time offsets >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+import pytz
+from datetime import datetime
+
+def create_timezone_offset_dict():
+    timezone_offset_dict = {}
+    for tz in pytz.all_timezones:
+        timezone = pytz.timezone(tz)
+        datetime_now = datetime.now(timezone)
+        offset_sec = datetime_now.utcoffset().total_seconds()
+        hours_offset = int(offset_sec // 3600)
+        minutes_offset = int((offset_sec % 3600) // 60)
+        sign = '+' if hours_offset >= 0 else '-'
+        offset_str = f"T{sign}{abs(hours_offset):02d}:{abs(minutes_offset):02d}"
+        timezone_offset_dict[tz] = offset_str
+    return timezone_offset_dict
+
+timezone_offset_dict = create_timezone_offset_dict()
+
+
 print("All commands have been executed and their outputs saved.")
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
