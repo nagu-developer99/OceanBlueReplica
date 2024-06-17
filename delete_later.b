@@ -260,3 +260,31 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+#######################################################
+
+import struct
+import csv
+
+# Define the format of the binary data
+# 'i' means a single 4-byte integer
+binary_format = 'i'
+
+# Open the binary file for reading
+with open('input.bin', 'rb') as binary_file:
+    # Open the CSV file for writing
+    with open('output.csv', 'w', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+
+        # Read the binary file
+        while True:
+            # Read a chunk of data from the binary file
+            chunk = binary_file.read(struct.calcsize(binary_format))
+            if not chunk:
+                break
+            
+            # Unpack the binary data into a tuple
+            data = struct.unpack(binary_format, chunk)
+            
+            # Write the data to the CSV file
+            csv_writer.writerow(data)
