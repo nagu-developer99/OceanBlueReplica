@@ -304,4 +304,45 @@ if __name__ == '__main__':
     email_body = create_email_body()
     send_email(email_body, 'recipient-email@example.com', 'Daily Job Status Report')
 
+####################################3
+# Function to create an HTML table with adjustable column widths
+def create_html_table(data, headers, widths=None):
+    html = """
+    <table border="1" cellpadding="5" cellspacing="0">
+        <tr>
+    """
+    # Add headers with optional width
+    for i, header in enumerate(headers):
+        width_style = f'style="width:{widths[i]};"' if widths else ''
+        html += f"<th {width_style}>{header}</th>"
+    html += "</tr>"
+    
+    # Add rows
+    for row in data:
+        html += "<tr>"
+        for i, header in enumerate(headers):
+            cell_value = row[header]
+            if header == 'Status':  # Color cells based on status
+                color = 'green' if cell_value == 'Pass' else 'red' if cell_value == 'Fail' else 'orange'
+                html += f'<td style="background-color:{color};">{cell_value}</td>'
+            else:
+                html += f'<td>{cell_value}</td>'
+        html += "</tr>"
+    
+    html += "</table>"
+    return html
+#>>>>>>>>>>>>>>>>>>>>>>>>
+# Example data
+job_data = [
+    {'Job': 'Job 1', 'Status': 'Pass', 'Records': 100},
+    {'Job': 'Job 2', 'Status': 'Fail', 'Records': 50},
+    {'Job': 'Job 3', 'Status': 'Pending', 'Records': 0},
+]
+
+# Specify column headers and widths (e.g., 200px for 'Job', 100px for 'Status', and 80px for 'Records')
+column_headers = ['Job', 'Status', 'Records']
+column_widths = ['200px', '100px', '80px']
+
+# Generate the table with widths
+html_table = create_html_table(job_data, column_headers, column_widths)
 
