@@ -346,3 +346,39 @@ column_widths = ['200px', '100px', '80px']
 # Generate the table with widths
 html_table = create_html_table(job_data, column_headers, column_widths)
 
+#########################
+import os
+
+def split_file(input_file, output_dir, chunk_size):
+    """
+    Splits the input_file into multiple smaller files of specified chunk_size.
+
+    :param input_file: Path to the large file to split
+    :param output_dir: Directory where the split files will be saved
+    :param chunk_size: Size of each chunk in bytes (e.g., 50 * 1024 * 1024 for 50MB)
+    """
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    file_size = os.path.getsize(input_file)
+    file_name = os.path.basename(input_file)
+    
+    with open(input_file, 'rb') as f:
+        chunk_count = 1
+        while True:
+            chunk_data = f.read(chunk_size)
+            if not chunk_data:
+                break
+            output_file = os.path.join(output_dir, f'{file_name}.part{chunk_count:03d}')
+            with open(output_file, 'wb') as chunk_file:
+                chunk_file.write(chunk_data)
+            print(f"Created: {output_file}")
+            chunk_count += 1
+
+if __name__ == "__main__":
+    input_file = "C:/path/to/your/large_file.log"  # Path to your large file
+    output_dir = "C:/path/to/output/directory"  # Directory to save the smaller files
+    chunk_size = 50 * 1024 * 1024  # Set chunk size to 50MB (50 * 1024 * 1024 bytes)
+
+    split_file(input_file, output_dir, chunk_size)
+
