@@ -396,4 +396,45 @@ index="windesktop_process" "fluent"
 | eval status=if(isnull(status), "Not Present", status)
 | chart values(status) over date by host
 
+####
+function log_rotation(tag, timestamp, record)
+    local log_file = "C:\\programfiles\\loki\\logs.txt"
+    local max_size = 500 * 1024 * 1024 -- 500 MB in bytes
+
+    -- Get file size
+    local file = io.open(log_file, "r")
+    if file then
+        local current_size = file:seek("end")
+        file:close()
+
+        if current_size > max_size then
+            -- Close the current file and remove it
+            os.remove(log_file)
+
+            -- Create a new log file
+            file = io.open(log_file, "w")
+            file:close()
+
+            return 1, timestamp, record -- Returning 1 to apply changes
+        end
+    end
+
+    return 0, timestamp, record -- No rotation needed
+end
+
+##
+[INPUT]
+    Name tail
+    Path C:\programfiles\loki\logs.txt
+    # Your other settings
+
+[FILTER]
+    Name lua
+    Match *
+    Script C:\path\to\log_rotation.lua
+    Call log_rotation
+
+[OUTPUT]
+    Name loki
+    # Your Loki settings
 
