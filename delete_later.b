@@ -386,10 +386,10 @@ index="windesktop_process" "fluent"
 | eval date=strftime(_time, "%Y-%m-%d")
 | stats count by host, date
 | eval status=if(count > 0, "Present", "Not Present")
-| appendpipe [| makemv delim="," hosts="host1,host2,host3,host4,host5,host6,host7,host8,host9,host10"
-| mvexpand hosts
-| gentimes start=-30 | eval date=strftime(starttime, "%Y-%m-%d") | fields date
-| eval host=hosts ]
+| append [| makeresults | eval date=strftime(now() - (86400 * (mvrange(0, 30))), "%Y-%m-%d") | mvexpand date
+| eval host=mvappend("host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9", "host10")
+| mvexpand host]
 | stats first(status) as status by host, date
 | eval status=if(isnull(status), "Not Present", status)
 | chart values(status) over date by host
+
