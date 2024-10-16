@@ -381,4 +381,15 @@ if __name__ == "__main__":
     chunk_size = 50 * 1024 * 1024  # Set chunk size to 50MB (50 * 1024 * 1024 bytes)
 
     split_file(input_file, output_dir, chunk_size)
-
+#####
+index="windesktop_process" "fluent"
+| eval date=strftime(_time, "%Y-%m-%d")
+| stats count by host, date
+| eval status=if(count > 0, "Present", "Not Present")
+| appendpipe [| makemv delim="," hosts="host1,host2,host3,host4,host5,host6,host7,host8,host9,host10"
+| mvexpand hosts
+| gentimes start=-30 | eval date=strftime(starttime, "%Y-%m-%d") | fields date
+| eval host=hosts ]
+| stats first(status) as status by host, date
+| eval status=if(isnull(status), "Not Present", status)
+| chart values(status) over date by host
