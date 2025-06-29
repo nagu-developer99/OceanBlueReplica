@@ -41,35 +41,41 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 ##########################
-def build_llm_context(df_full, system_name, start_date, end_date):
-    # Parse dates
+def build_llm_context(df_full, start_date, end_date, system_name=None):
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
     duration_days = (end_date - start_date).days + 1
 
-    # Filter data
-    df_sys = df_full[df_full['System_Name'].str.lower() == system_name.lower()]
-    df_period = df_sys[(df_sys['Execution_Date'] >= start_date) & (df_sys['Execution_Date'] <= end_date)]
+    # Filter date range
+    df_period = df_full[(df_full['Execution_Date'] >= start_date) & (df_full['Execution_Date'] <= end_date)]
 
-    # Identify zero-record dates
-    zero_dates = df_period[df_period['No_Of_Records'] == 0]['Execution_Date'].dt.strftime('%Y-%m-%d').tolist()
+    # Optionally filter by system name
+    if system_name:
+        df_period = df_period[df_period['System_Name'].str.lower() == system_name.lower()]
 
-    # Prepare message
-    if duration_days <= 14:
-        # Daily records
-        rows = df_period.sort_values('Execution_Date')
-        daily_lines = "\n".join(f"{d.strftime('%Y-%m-%d')}: {r} records"
-                                for d, r in zip(rows['Execution_Date'], rows['No_Of_Records']))
-        summary = f"Daily record summary for {system_name} from {start_date.date()} to {end_date.date()}:\n{daily_lines}"
-    else:
-        # Weekly average
-        df_period['Week'] = df_period['Execution_Date'].dt.to_period('W').apply(lambda r: r.start_time)
-        weekly_avg = df_period.groupby('Week')['No_Of_Records'].sum().mean()
-        summary = f"{system_name} created an average of {weekly_avg:.1f} records per week from {start_date.date()} to {end_date.date()}."
+    systems = df_period['System_Name'].unique()
+    output = []
 
-    # Add 0-record dates
-    if zero_dates:
-        summary += f"\n\n⚠️ Days with 0 records: {', '.join(zero_dates)}"
+    for system in systems:
+        df_sys = df_period[df_period['System_Name'] == system]
+        zero_dates = df_sys[df_sys['No_Of_Records'] == 0]['Execution_Date'].dt.strftime('%Y-%m-%d').tolist()
 
-    return summary
+        if duration_days <= 14:
+            daily_lines = "\n".join(
+                f"{d.strftime('%Y-%m-%d')}: {r} records"
+                for d, r in zip(df_sys['Execution_Date'], df_sys['No_Of_Records'])
+            )
+            summary = f"📊 {system} - Daily records:\n{daily_lines}"
+        else:
+            df_sys['Week'] = df_sys['Execution_Date'].dt.to_period('W').apply(lambda r: r.start_time)
+            weekly_avg = df_sys.groupby('Week')['No_Of_Records'].sum().mean()
+            summary = f"📈 {system} - Average: {weekly_avg:.1f} records/week"
+
+        if zero_dates:
+            summary += f"\n⚠️ Zero-record dates: {', '.join(zero_dates)}"
+
+        output.append(summary)
+
+    return "\n\n".join(output)
+
 
